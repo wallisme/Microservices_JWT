@@ -1,4 +1,6 @@
+using JWTService.Application.Interfaces;
 using JWTService.Infrastructure.Extensions;
+using JWTService.Application.Implementations;
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
@@ -7,7 +9,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 var conn = builder.Configuration.GetSection("ConnectionStrings:Default").Value;
 builder.Services.AddInfrastructureService(conn);
-
+builder.Services.AddScoped<IUserAction, UserAction>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -22,12 +22,23 @@ namespace JWTService.Application.Implementations
             if (user == null) return new LoginResponseDTO(-1, "User not found!!", null);
             var checkPassword = BCrypt.Net.BCrypt.Verify(loginModel.Password, user.Password);
             if (!checkPassword) return new LoginResponseDTO(-1, "Invalid Password!!", null);
-            return new LoginResponseDTO(0, "Invalid Password!!", GenerateToken(user));
+            return new LoginResponseDTO(0, "Successfull!!", GenerateToken(user));
         }
 
-        public Task<RegisterResponseDTO> Register(RegisterDTO user)
+        public async Task<RegisterResponseDTO> Register(RegisterDTO registerModel)
         {
-            throw new NotImplementedException();
+            if (registerModel == null) return new RegisterResponseDTO(-1, "User is null");
+            var user = _context.Users.FirstOrDefaultAsync(x => x.Email == registerModel.Email).Result;
+            if(user != null) return new RegisterResponseDTO(-1, "Email has been used !!!");
+            var newUser = new ApplicationUser()
+            {
+                Name = registerModel.Name,
+                Email = registerModel.Email,
+                Password = BCrypt.Net.BCrypt.HashPassword(registerModel.Password)
+            };
+            _context.Users.Add(newUser);
+            await _context.SaveChangesAsync();  
+            return new RegisterResponseDTO(0, "Successfull !!!");
         }
 
         private string GenerateToken(ApplicationUser user)
@@ -46,7 +57,7 @@ namespace JWTService.Application.Implementations
                 claims: userClaims,
                 expires: DateTime.Now.AddHours(5),
                 signingCredentials: credentials);
-            return token.ToString();
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }
