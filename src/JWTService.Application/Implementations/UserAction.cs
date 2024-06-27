@@ -43,13 +43,13 @@ namespace JWTService.Application.Implementations
 
         private string GenerateToken(ApplicationUser user)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.GetSection("PrivateKey").Value));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.GetSection("PrivateKey").Value!));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var userClaims = new Claim[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.NameIdentifier, user.Name)
+            {   
+                new (ClaimTypes.NameIdentifier, user.Id!),
+                new (ClaimTypes.Email, user.Email!),
+                new (ClaimTypes.NameIdentifier, user.Name!)
             };
             var token = new JwtSecurityToken(
                 issuer: _config.GetSection("Issuer").Value,
